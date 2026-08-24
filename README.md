@@ -1,1 +1,1 @@
-# -Valyuta_kurslari
+# Valyuta_kurslari
