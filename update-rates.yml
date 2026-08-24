@@ -1,0 +1,30 @@
+name: Daily FX archive
+
+on:
+  schedule:
+    - cron: '15 1 * * *'   # 01:15 UTC daily (after the feed's ~00:00 UTC refresh)
+  workflow_dispatch:        # lets you run it manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch and append today's rates
+        run: python update_rates.py
+
+      - name: Commit the updated archive
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add history.json
+          git diff --staged --quiet || git commit -m "rates: $(date -u +%F) [skip ci]"
+          git push
